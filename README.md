@@ -26,14 +26,11 @@ The game uses **both** random and deterministic systems, satisfying the
 ## How to Build and Run
 
 ```bash
-# Compile with GHC
-ghc AdventureGame.hs -o adventuregame
+# Compile the Program
+:l AdventureGame.hs
 
-# Run the compiled game
-./adventuregame
-
-# Alternatively, run directly without compiling:
-runghc AdventureGame.hs
+# Run the main Function
+:main
 ```
 
 ## How to Play
