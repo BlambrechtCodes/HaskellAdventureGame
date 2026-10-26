@@ -1,196 +1,335 @@
-
--- HASKELL ADVENTURE GAME — "Wanderer of the Foreign Land"
--- CS 421 Assignment — Design Template
+-- ===========================================================================
+-- HASKELL ADVENTURE GAME: "Wanderer of the Foreign Land"
+-- CS 421 Assignment -- Game Design and Character Selection
+-- ===========================================================================
 --
--- This file is a commented template. Replace the stubs below with real
--- Haskell code section by section to complete the text-based adventure game.
+-- PROJECT PURPOSE
+--   Build an interactive, text-based adventure game in Haskell that:
+--     1. Presents a story through text.
+--     2. Accepts and responds to user input.
+--     3. Provides at least 10 meaningful gameplay choices.
+--     4. Uses deterministic mechanics, random mechanics, or both.
 --
--- ASSIGNMENT REQUIREMENTS COVERED
---   1. Text-based adventure game         -> see gameLoop, locationMenu, combat
---   2. 10+ player choices                -> see CHOICES section below
---   3. User input                        -> see createPlayer and all menu prompts
---   4. Random OR Deterministic mechanics -> see RANDOM and DETERMINISTIC sections
+-- IMPLEMENTATION SCOPE OF THIS FILE
+--   Implemented:
+--     * Character-class and player data types.
+--     * Deterministic starting statistics for each class.
+--     * Interactive class selection.
+--     * Player-name entry and validation.
+--     * Character confirmation and reselection.
 --
--- ============================================================================
-
+--   Planned, but NOT implemented:
+--     * Exploration and location events.
+--     * Combat, enemy generation, and fleeing.
+--     * Inventory, potions, and relic collection.
+--     * Victory tracking and the Hollow King encounter.
+--     * Win/loss checks and the main adventure loop.
+--
+--   Running this file completes character creation and then stops.
+--   It does not run the full adventure.
+--
 module Main where
 
--- ----------------------------------------------------------------------------
--- IMPORTS (TODO: add as needed)
--- ----------------------------------------------------------------------------
---   import System.Random (randomRIO)
---   import System.IO (hFlush, stdout, hSetBuffering, BufferMode(NoBuffering))
+import Data.Char (isSpace, toLower)
+import System.IO (hFlush, stdout)
 
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — PLOT & SETTING
--- ----------------------------------------------------------------------------
+
+-- ===========================================================================
+-- DESIGN TEMPLATE: PLOT AND SETTING
+-- ===========================================================================
 --
--- PLOT:
---   You wake up in a foreign, haunted land with no memory of how you got
---   there. The only way home is an ancient gate sealed by three relics:
---   the Wishbone, the Coin, and the Star.
+-- PLOT
+--   You awaken as a wanderer in a foreign, haunted land. Scattered ruins,
+--   dark woods, and crystal caverns surround an ancient sealed gate.
+--   The gate is your only path home.
 --
--- GOAL:
---   Travel through dangerous locations, fight enemies, collect the three
---   relics, win three battles, defeat the Hollow King boss, and escape.
---   If your health reaches zero, you lose.
-
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — CHARACTER CLASSES (DETERMINISTIC BASE STATS)
--- ----------------------------------------------------------------------------
---   Brute   : 12 max HP, 3 STR   — tough and steady, lower damage
---   Mage    :  6 max HP, 6 STR   — fragile but deadly
---   Assault :  9 max HP, 4 STR   — balanced
+--   Three sacred relics -- the Wishbone, the Coin, and the Star -- are
+--   needed to break the gate's seal. However, the Hollow King guards
+--   the passage and must be defeated before you can escape.
 --
--- Choose one at the start. These base stats are deterministic (fixed).
-
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — RANDOM MECHANICS
--- ----------------------------------------------------------------------------
---   • Enemy encountered in a location is chosen at random
---   • Damage rolls vary within a range based on strength
---   • 15% chance that any attack (player or enemy) misses
---   • Location event is random (enemy, item, empty, trap)
---   • Loot drop is random (Health Potion or nothing)
---   • Relic drop after victory is random (Wishbone / Coin / Star)
---   • Fleeing from combat succeeds about 50% of the time
-
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — DETERMINISTIC MECHANICS
--- ----------------------------------------------------------------------------
---   • Base max HP and strength are fixed by your chosen character class
---   • Resting at camp always heals exactly 4 HP
---   • A Health Potion always heals exactly 5 HP
---   • The Hollow King boss appears after exactly 3 victories
---   • Story progression follows your menu choices
-
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — WIN / LOSE CONDITIONS
--- ----------------------------------------------------------------------------
---   Win  : Defeat the Hollow King boss (available after 3 victories)
---   Lose : Your health drops to 0 or below
-
--- ----------------------------------------------------------------------------
--- DESIGN TEMPLATE — PLAYER CHOICES (10+)
--- ----------------------------------------------------------------------------
---   1. Pick your character class (Brute / Mage / Assault)
---   2. Choose where to travel (Dark Forest / Crystal Caves / Ancient Ruins)
---   3. Rest at camp to heal
---   4. Check your status and inventory
---   5. Quit the game
---   6. In combat: Attack
---   7. In combat: Defend (halve the next incoming hit)
---   8. In combat: Use a Health Potion
---   9. In combat: Flee (50% success chance)
---   10. In the boss fight: Attack / Defend / Potion / Flee
+-- PLAYER GOALS
+--   1. Choose a character class and enter a name.
+--   2. Explore the Dark Forest, Crystal Caves, and Ancient Ruins.
+--   3. Recover the Wishbone, Coin, and Star.
+--   4. Earn three regular battle victories.
+--   5. Defeat the Hollow King and return home.
 --
--- Because these menus repeat every turn, a real playthrough contains many
--- more than 10 choices.
-
--- ----------------------------------------------------------------------------
--- DATA TYPES (TODO: define these)
--- ----------------------------------------------------------------------------
---   data Player  = Player { name, charClass, health, maxHealth, strength,
---                           victories, inventory :: ... }
---   data Enemy   = Enemy { eName, eHealth, eMaxHealth, eStrength :: ... }
---   (Optional) data Item = HealthPotion | Wishbone | Coin | Star
-
--- ----------------------------------------------------------------------------
--- STATIC TABLES (TODO: fill in)
--- ----------------------------------------------------------------------------
---   wildEnemies :: [(String, Int, Int)]  -- (name, health, strength)
---   bossEnemy   :: Enemy                  -- The Hollow King (appears after 3 wins)
-
--- ----------------------------------------------------------------------------
--- RANDOM HELPERS (TODO: implement)
--- ----------------------------------------------------------------------------
---   roll    :: Int -> Int -> IO Int      -- random int in inclusive range
---   chance  :: Int -> IO Bool            -- True with given percent probability
---   pickRandom :: [a] -> IO a            -- random element from a list
---   rollDamage :: Int -> IO Int          -- damage based on attacker strength
-
--- ----------------------------------------------------------------------------
--- CHARACTER CREATION — USER INPUT (TODO: implement)
--- ----------------------------------------------------------------------------
---   createPlayer :: IO Player
---     1. Print title and plot summary
---     2. Prompt for and read the player's name (getLine)
---     3. Show the three classes with deterministic stats
---     4. Read class choice (getLine)
---     5. Return Player with chosen stats, full health, 0 wins, empty inventory
-
--- ----------------------------------------------------------------------------
--- DISPLAY / STATUS (TODO: implement)
--- ----------------------------------------------------------------------------
---   printStatus :: Player -> IO ()
---     Print name, class, HP, strength, victories (out of 3), and inventory
-
--- ----------------------------------------------------------------------------
--- ENEMY GENERATION (TODO: implement)
--- ----------------------------------------------------------------------------
---   randomEnemy :: IO Enemy
---     Pick a random enemy from wildEnemies and return it at full health
-
--- ----------------------------------------------------------------------------
--- COMBAT SYSTEM — RANDOM + DETERMINISTIC (TODO: implement)
--- ----------------------------------------------------------------------------
---   combat :: Player -> Enemy -> IO (Maybe Player)
---     Returns Nothing if player dies, Just updated player on victory.
---     Player choices each turn:
---       1. Attack       — roll damage (random), apply to enemy
---       2. Defend       — halve the next incoming hit (deterministic)
---       3. Use Potion   — heal exactly 5 HP if Health Potion in inventory
---       4. Flee         — 50% random chance to escape; otherwise take a hit
---     Enemy turn:
---       - Attacks back (random damage based on enemy strength)
---       - 15% random chance to miss
---       - If player defended, halve incoming damage once
---     After victory:
---       - Increment victory count
---       - Random loot (Health Potion or nothing)
---       - Random relic (Wishbone / Coin / Star)
-
--- ----------------------------------------------------------------------------
--- EXPLORATION / LOCATIONS — RANDOM EVENTS (TODO: implement)
--- ----------------------------------------------------------------------------
---   explore :: Player -> String -> IO ()
---     Travel to a location and trigger a random event:
---       1. Enemy encounter -> start combat
---       2. Find item       -> add Health Potion to inventory
---       3. Nothing happens -> description only
---       4. Trap / hazard   -> take small deterministic damage
+-- PROPOSED PROGRESSION RULE
+--   The third regular battle victory completes the combat requirement.
+--   The boss encounter becomes available when BOTH conditions are met:
+--     * The player has at least three regular battle victories.
+--     * The player possesses all three relics.
 --
---   locationMenu :: Player -> IO ()
---     Menu choices:
---       1. Dark Forest
---       2. Crystal Caves
---       3. Ancient Ruins
---       4. Rest at Camp   — heal exactly 4 HP (deterministic)
---       5. Check Status
---       6. Quit
---     Read choice with getLine and branch accordingly
+--   Using "at least three" avoids accidentally locking the player out
+--   if they win additional battles before collecting every relic.
+--   The Hollow King victory is separate from regular battle victories.
+--
+-- WIN CONDITION
+--   Defeat the Hollow King after satisfying both progression requirements,
+--   then pass through the opened gate.
+--
+-- LOSS CONDITION
+--   The player's current health reaches zero or below.
+--   Future gameplay code must check this after damaging events and attacks.
 
--- ----------------------------------------------------------------------------
--- BOSS FIGHT — DETERMINISTIC TRIGGER (TODO: implement)
--- ----------------------------------------------------------------------------
---   bossFight :: Player -> IO ()
---     Available only after 3 victories.
---     Combat against the Hollow King.
---     Victory: print win message and end game.
---   Defeat: print game-over message and end game
 
--- ----------------------------------------------------------------------------
--- MAIN GAME LOOP (TODO: implement)
--- ----------------------------------------------------------------------------
---   gameLoop :: Player -> IO ()
---     Loop until game ends:
---       - If HP <= 0: print GAME OVER and stop
---       - If victories >= 3: start bossFight
---       - Otherwise: show locationMenu
+-- ===========================================================================
+-- DESIGN TEMPLATE: CHARACTER CLASSES
+-- ===========================================================================
+--
+--   Class       Maximum HP    Strength    Role
+--   Brute       12            3           High endurance, lower damage
+--   Mage         6            6           Low endurance, high damage
+--   Assault      9            4           Balanced endurance and damage
+--
+--   Starting statistics are deterministic:
+--     * Each class always receives the same maximum HP and strength.
+--     * A new player starts at full health.
+--     * Character creation does not randomly change these statistics.
+--
+--   The player selects a class before entering a name and reviewing
+--   the completed character.
 
--- ----------------------------------------------------------------------------
--- ENTRY POINT (TODO: implement)
--- ----------------------------------------------------------------------------
---   main :: IO ()
---     Set stdout buffering to NoBuffering.
---     Call createPlayer, then call gameLoop.
+
+-- ===========================================================================
+-- DESIGN TEMPLATE: PLAYER INPUT AND MEANINGFUL CHOICES
+-- ===========================================================================
+--
+--   Planned choices throughout the complete game:
+--     1. Select Brute, Mage, or Assault.
+--     2. Travel to the Dark Forest.
+--     3. Travel to the Crystal Caves.
+--     4. Travel to the Ancient Ruins.
+--     5. Search the current location for relics or supplies.
+--     6. Approach an enemy and begin combat.
+--     7. Use a normal attack during combat.
+--     8. Defend against an enemy's next attack.
+--     9. Drink a healing potion when one is available.
+--    10. Attempt to flee from combat.
+--    11. Return to camp to restore health.
+--    12. Inspect the ancient gate and remaining requirements.
+--    13. Challenge the Hollow King once eligible.
+--
+--   These are planned gameplay options, not features implemented here.
+--   Name entry, invalid-input retries, and confirmation prompts are not
+--   counted as substitutes for meaningful adventure choices.
+--
+--   Future menus should explain unavailable actions, such as attempting
+--   to drink a potion with an empty inventory or challenging a locked boss.
+
+
+-- ===========================================================================
+-- DESIGN TEMPLATE: DETERMINISTIC AND RANDOM MECHANICS
+-- ===========================================================================
+--
+-- DETERMINISTIC MECHANICS
+--   * Class starting HP and strength.
+--   * Starting at full health.
+--   * Camp restores health to the class maximum.
+--   * Potions restore a fixed amount without exceeding maximum HP.
+--   * Boss eligibility depends on relics and regular battle victories.
+--   * Zero or negative health causes defeat.
+--
+-- PROPOSED RANDOM MECHANICS -- FUTURE IMPLEMENTATION
+--   * Enemy type encountered while exploring.
+--   * Damage variation and attack misses.
+--   * Supply drops and location events.
+--   * Success or failure when attempting to flee.
+--
+--   Character selection requires no randomness.
+--   Add System.Random only when implementing random gameplay features.
+
+
+-- ===========================================================================
+-- CHARACTER-SELECTION DATA TYPES
+-- ===========================================================================
+
+data CharacterClass
+    = Brute
+    | Mage
+    | Assault
+    deriving (Eq, Show)
+
+data ClassStats = ClassStats
+    { maximumHP    :: Int
+    , baseStrength :: Int
+    } deriving (Eq, Show)
+
+data Player = Player
+    { playerName     :: String
+    , playerClass    :: CharacterClass
+    , playerHealth   :: Int
+    , playerMaxHealth :: Int
+    , playerStrength :: Int
+    } deriving (Eq, Show)
+
+
+-- ===========================================================================
+-- DETERMINISTIC CLASS INFORMATION
+-- ===========================================================================
+
+classStats :: CharacterClass -> ClassStats
+classStats Brute   = ClassStats 12 3
+classStats Mage    = ClassStats 6 6
+classStats Assault = ClassStats 9 4
+
+classDescription :: CharacterClass -> String
+classDescription Brute =
+    "High endurance and lower damage."
+classDescription Mage =
+    "Low endurance and high damage."
+classDescription Assault =
+    "Balanced endurance and damage."
+
+-- Pure constructor: no input/output or randomness.
+makePlayer :: String -> CharacterClass -> Player
+makePlayer name chosenClass =
+    let stats = classStats chosenClass
+    in Player
+        { playerName      = name
+        , playerClass     = chosenClass
+        , playerHealth    = maximumHP stats
+        , playerMaxHealth = maximumHP stats
+        , playerStrength  = baseStrength stats
+        }
+
+
+-- ===========================================================================
+-- INPUT HELPERS
+-- ===========================================================================
+
+trim :: String -> String
+trim = dropWhileEndSpace . dropWhile isSpace
+  where
+    dropWhileEndSpace = reverse . dropWhile isSpace . reverse
+
+normalize :: String -> String
+normalize = map toLower . trim
+
+prompt :: String -> IO String
+prompt message = do
+    putStr message
+    hFlush stdout
+    getLine
+
+
+-- ===========================================================================
+-- CLASS SELECTION
+-- ===========================================================================
+
+parseClass :: String -> Maybe CharacterClass
+parseClass input =
+    case normalize input of
+        "1"       -> Just Brute
+        "brute"   -> Just Brute
+        "2"       -> Just Mage
+        "mage"    -> Just Mage
+        "3"       -> Just Assault
+        "assault" -> Just Assault
+        _         -> Nothing
+
+displayClassOption :: String -> CharacterClass -> IO ()
+displayClassOption number chosenClass = do
+    let stats = classStats chosenClass
+    putStrLn $
+        number ++ ". " ++ show chosenClass
+        ++ " | HP: " ++ show (maximumHP stats)
+        ++ " | STR: " ++ show (baseStrength stats)
+    putStrLn $ "   " ++ classDescription chosenClass
+
+chooseClass :: IO CharacterClass
+chooseClass = do
+    putStrLn "\nChoose your character class:"
+    displayClassOption "1" Brute
+    displayClassOption "2" Mage
+    displayClassOption "3" Assault
+    input <- prompt "Enter a number or class name: "
+
+    case parseClass input of
+        Just chosenClass -> pure chosenClass
+        Nothing -> do
+            putStrLn "Invalid selection. Enter 1, 2, 3, or a class name."
+            chooseClass
+
+
+-- ===========================================================================
+-- NAME ENTRY AND CHARACTER CONFIRMATION
+-- ===========================================================================
+
+chooseName :: IO String
+chooseName = do
+    input <- prompt "\nEnter your wanderer's name: "
+    let name = trim input
+
+    if null name
+        then do
+            putStrLn "Your name cannot be empty."
+            chooseName
+        else pure name
+
+displayPlayer :: Player -> IO ()
+displayPlayer player = do
+    putStrLn "\n--- Your Character ---"
+    putStrLn $ "Name:     " ++ playerName player
+    putStrLn $ "Class:    " ++ show (playerClass player)
+    putStrLn $
+        "Health:   " ++ show (playerHealth player)
+        ++ "/" ++ show (playerMaxHealth player)
+    putStrLn $ "Strength: " ++ show (playerStrength player)
+
+confirmCharacter :: IO Bool
+confirmCharacter = do
+    input <- prompt "\nKeep this character? (yes/no): "
+
+    case normalize input of
+        "yes" -> pure True
+        "y"   -> pure True
+        "no"  -> pure False
+        "n"   -> pure False
+        _     -> do
+            putStrLn "Please enter yes or no."
+            confirmCharacter
+
+
+-- ===========================================================================
+-- CHARACTER-CREATION ENTRY POINT
+-- ===========================================================================
+
+createPlayer :: IO Player
+createPlayer = do
+    chosenClass <- chooseClass
+    name <- chooseName
+    let player = makePlayer name chosenClass
+
+    displayPlayer player
+    confirmed <- confirmCharacter
+
+    if confirmed
+        then pure player
+        else do
+            putStrLn "\nLet's create your character again."
+            createPlayer
+
+
+-- ===========================================================================
+-- PROGRAM ENTRY POINT -- CHARACTER SELECTION ONLY
+-- ===========================================================================
+
+main :: IO ()
+main = do
+    putStrLn "======================================"
+    putStrLn "     Wanderer of the Foreign Land"
+    putStrLn "======================================"
+    putStrLn "You awaken in a haunted land far from home."
+
+    player <- createPlayer
+
+    putStrLn $
+        "\nCharacter creation complete. Welcome, "
+        ++ playerName player ++ "!"
+    putStrLn "The adventure itself has not been implemented yet."
+
+    -- TODO: Pass player to the future adventure loop.
+    -- TODO: Implement exploration and the documented gameplay choices.
+    -- TODO: Implement combat, inventory, relics, and victory tracking.
+    -- TODO: Implement boss eligibility and win/loss conditions.
