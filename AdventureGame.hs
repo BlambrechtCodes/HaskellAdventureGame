@@ -92,6 +92,16 @@ import System.IO (hFlush, stdout)
 
 
 -- ===========================================================================
+-- DESIGN TEMPLATE: Enemy Types
+-- ===========================================================================
+--
+--   Class       Maximum HP    Strength    Role
+--   Goblin       1            1           Generally really weak (But annoying)
+--   Skeleton     3            2           Low endurance, low damage
+--   Theif        5            5           Balanced enemy
+--
+
+-- ===========================================================================
 -- DESIGN TEMPLATE: PLAYER INPUT AND MEANINGFUL CHOICES
 -- ===========================================================================
 --
@@ -139,6 +149,28 @@ import System.IO (hFlush, stdout)
 --   Character selection requires no randomness.
 --   Add System.Random only when implementing random gameplay features.
 
+-- ===========================================================================
+-- ENEMY DATA TYPES
+-- ===========================================================================
+
+data EnemyClass
+    = Goblin
+    | Skeleton
+    | Theif
+    deriving (Eq, Show)
+
+data EnemyStats = EnemyStats
+    { maximumHP    :: Int
+    , baseStrength :: Int
+    } deriving (Eq, Show)
+
+data Enemy = Enemy
+    { enemyName     :: String
+    , enemyClass    :: CharacterClass
+    , enemyHealth   :: Int
+    , enemyMaxHealth :: Int
+    , enemyStrength :: Int
+    } deriving (Eq, Show)
 
 -- ===========================================================================
 -- CHARACTER-SELECTION DATA TYPES
@@ -163,6 +195,16 @@ data Player = Player
     , playerStrength :: Int
     } deriving (Eq, Show)
 
+-- ===========================================================================
+-- DETERMINISTIC CLASS INFORMATION
+-- ===========================================================================
+
+enemyStats :: EnemyClass -> EnemyStats
+enemyStats Skeleton   = EnemyStats 3 2
+enemyStats Goblin     = EnemyStats 1 1
+enemyStats Theif      = EnemyStats 5 5
+
+-- Generation of an enemy will be completely random.
 
 -- ===========================================================================
 -- DETERMINISTIC CLASS INFORMATION
