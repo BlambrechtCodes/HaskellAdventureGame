@@ -187,12 +187,21 @@ data ClassStats = ClassStats
     , baseStrength :: Int
     } deriving (Eq, Show)
 
+data Relic = Wishbone | Coin | Star
+    deriving(Eq, Show, Enum, Bounded)
+
+data Inventory = Inventory
+    { potions :: Int
+    , relics :: [Relic]
+    } deriving (Eq, Show)
+
 data Player = Player
     { playerName     :: String
     , playerClass    :: CharacterClass
     , playerHealth   :: Int
     , playerMaxHealth :: Int
     , playerStrength :: Int
+    , playerInventory :: Inventory
     } deriving (Eq, Show)
 
 -- ===========================================================================
@@ -233,6 +242,7 @@ makePlayer name chosenClass =
         , playerHealth    = maximumHP stats
         , playerMaxHealth = maximumHP stats
         , playerStrength  = baseStrength stats
+        , playerInventory = Inventory { potions = 0, relics = [] }
         }
 
 
