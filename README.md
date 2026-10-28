@@ -26,10 +26,14 @@ The game uses **both** random and deterministic systems, satisfying the
 ## How to Build and Run
 
 ```bash
-# Compile the Program
+
+# In your terminal, before going to the GHCI shell, import Random
+stack ghci --package random
+
+# Compile the Program in GHCI
 :l AdventureGame.hs
 
-# Run the main Function
+# Run the main Function to start the game
 :main
 ```
 
