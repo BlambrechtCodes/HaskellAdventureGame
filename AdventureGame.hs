@@ -326,19 +326,19 @@ generateLocationEvent game loc
         roll <- randomRIO (1 :: Int, 100 :: Int)
         case loc of
             DarkForest -> do
-                if roll <= 60
+                if roll <= 70
                     then EnemyEncounter <$> generateEnemy DarkForest
                     else if roll <= 85
                         then RelicFound <$> pure Wishbone
                         else pure EmptyLocation
             CrystalCaves -> do
-                if roll <= 30
+                if roll <= 45
                     then EnemyEncounter <$> generateEnemy CrystalCaves
                     else if roll <= 55
                         then RelicFound <$> pure Coin
                         else pure EmptyLocation
             AncientRuins -> do
-                if roll <= 25
+                if roll <= 30
                     then EnemyEncounter <$> generateEnemy AncientRuins
                     else if roll <= 50
                         then RelicFound <$> pure Star
