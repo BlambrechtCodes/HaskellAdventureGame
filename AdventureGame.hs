@@ -160,15 +160,15 @@ data EnemyClass
     deriving (Eq, Show)
 
 data EnemyStats = EnemyStats
-    { maximumHP    :: Int
-    , baseStrength :: Int
+    { enemyMaxHP    :: Int
+    , enemyBaseStrength :: Int
     } deriving (Eq, Show)
 
 data Enemy = Enemy
     { enemyName     :: String
     , enemyClass    :: CharacterClass
     , enemyHealth   :: Int
-    , enemyMaxHealth :: Int
+    , enemyMaxHp :: Int
     , enemyStrength :: Int
     } deriving (Eq, Show)
 
