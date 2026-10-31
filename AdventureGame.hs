@@ -1,7 +1,5 @@
--- ===========================================================================
 -- HASKELL ADVENTURE GAME: "Wanderer of the Foreign Land"
 -- CS 421 Assignment -- Game Design and Character Selection
--- ===========================================================================
 --
 -- PROJECT PURPOSE
 --   Build an interactive, text-based adventure game in Haskell that:
@@ -9,19 +7,6 @@
 --     2. Accepts and responds to user input.
 --     3. Provides at least 10 meaningful gameplay choices.
 --     4. Uses deterministic mechanics, random mechanics, or both.
---
--- IMPLEMENTATION SCOPE OF THIS FILE
---   Implemented:
---     * Character-class and player data types.
---     * Deterministic starting statistics for each class.
---     * Interactive class selection.
---     * Player-name entry and validation.
---     * Character confirmation and reselection.
---     * Exploration and location events.
---     * Combat, enemy generation, and fleeing.
---     * Inventory and relic collection.
---     * Victory tracking and the Hollow King encounter.
---     * Win/loss checks and the main adventure loop.
 --
 --   The entire adventure is now playable from the main entry point.
 --   The player explores locations, fights enemies, collects relics,
@@ -37,9 +22,9 @@ import System.IO (hFlush, stdout)
 import System.Random (randomRIO)
 
 
--- ===========================================================================
+
 -- DESIGN TEMPLATE: PLOT AND SETTING
--- ===========================================================================
+
 --
 -- PLOT
 --   You awaken as a wanderer in a foreign, haunted land. Scattered ruins,
@@ -77,9 +62,7 @@ import System.Random (randomRIO)
 --   Gameplay checks this after damaging events and attacks.
 
 
--- ===========================================================================
 -- DESIGN TEMPLATE: CHARACTER CLASSES
--- ===========================================================================
 --
 --   Class       Maximum HP    Strength    Role
 --   Brute       25            4           High endurance, lower damage
@@ -95,9 +78,7 @@ import System.Random (randomRIO)
 --   the completed character.
 
 
--- ===========================================================================
 -- DESIGN TEMPLATE: Enemy Types
--- ===========================================================================
 --
 --   Class       Maximum HP    Strength    Role
 --   Goblin       1            1           Generally weak, but annoying
@@ -113,9 +94,8 @@ import System.Random (randomRIO)
 --   original code; the displayed enemy name is correctly spelled.
 
 
--- ===========================================================================
+
 -- DESIGN TEMPLATE: PLAYER INPUT AND MEANINGFUL CHOICES
--- ===========================================================================
 --
 --   Gameplay choices throughout the complete game:
 --     1. Select Brute, Mage, or Assault.
@@ -142,9 +122,8 @@ import System.Random (randomRIO)
 --     * Failing to flee allows an enemy attack.
 
 
--- ===========================================================================
+
 -- DESIGN TEMPLATE: DETERMINISTIC AND RANDOM MECHANICS
--- ===========================================================================
 --
 -- DETERMINISTIC MECHANICS
 --   * Class starting HP and strength.
@@ -165,10 +144,7 @@ import System.Random (randomRIO)
 --   System.Random is used for random gameplay features.
 
 
--- ===========================================================================
 -- ENEMY DATA TYPES
--- ===========================================================================
-
 data EnemyClass
     = Goblin
     | Skeleton
@@ -176,12 +152,10 @@ data EnemyClass
     | Boss
     deriving (Eq, Show)
 
-
 data EnemyStats = EnemyStats
     { enemyMaxHP        :: Int
     , enemyBaseStrength :: Int
     } deriving (Eq, Show)
-
 
 data Enemy = Enemy
     { enemyName     :: String
@@ -191,37 +165,28 @@ data Enemy = Enemy
     , enemyStrength :: Int
     } deriving (Eq, Show)
 
-
 -- The actions available to the player during a fight.
 data CombatAction = Attack | Defend | Flee
     deriving (Eq, Show)
 
-
--- ===========================================================================
 -- CHARACTER-SELECTION DATA TYPES
--- ===========================================================================
-
 data CharacterClass
     = Brute
     | Mage
     | Assault
     deriving (Eq, Show)
 
-
 data ClassStats = ClassStats
     { maximumHP    :: Int
     , baseStrength :: Int
     } deriving (Eq, Show)
 
-
 data Relic = Wishbone | Coin | Star
     deriving (Eq, Show, Enum, Bounded)
-
 
 data Inventory = Inventory
     { relics :: [Relic]
     } deriving (Eq, Show)
-
 
 data Player = Player
     { playerName      :: String
@@ -233,14 +198,10 @@ data Player = Player
     } deriving (Eq, Show)
 
 
--- ===========================================================================
 -- GAME-STATE DATA TYPES
--- ===========================================================================
-
 -- The places the wanderer can travel to.
 data Location = Camp | DarkForest | CrystalCaves | AncientRuins | Gate
     deriving (Eq, Show)
-
 
 -- The complete running state of an adventure.
 data Game = Game
@@ -253,16 +214,12 @@ data Game = Game
     } deriving (Eq, Show)
 
 
--- ===========================================================================
 -- DETERMINISTIC CLASS INFORMATION
--- ===========================================================================
-
 enemyStats :: EnemyClass -> EnemyStats
 enemyStats Goblin   = EnemyStats 1 1
 enemyStats Skeleton = EnemyStats 3 2
 enemyStats Theif    = EnemyStats 5 3
 enemyStats Boss     = EnemyStats 20 2
-
 
 -- The name of each enemy type as shown in combat.
 enemyTypeName :: EnemyClass -> String
@@ -270,7 +227,6 @@ enemyTypeName Goblin   = "Goblin"
 enemyTypeName Skeleton = "Skeleton"
 enemyTypeName Theif    = "Thief"
 enemyTypeName Boss     = "Hollow King"
-
 
 -- The boss enemy. High health makes this a longer encounter.
 -- Its statistics come from enemyStats to avoid conflicting values.
@@ -285,9 +241,7 @@ hollowKingEnemy =
         , enemyStrength = str
         }
 
-
 -- Generation of a regular enemy uses random location-based chances.
-
 
 -- A location event that may happen while exploring.
 -- BossEncounter is retained for compatibility, but random exploration
@@ -298,7 +252,6 @@ data LocationEvent
     | RelicFound Relic
     | EmptyLocation
     deriving (Eq, Show)
-
 
 -- Descriptions for each location in the wanderer's land.
 locationDescription :: Location -> String
@@ -449,10 +402,7 @@ makePlayer name chosenClass =
         }
 
 
--- ===========================================================================
 -- DETERMINISTIC MECHANICS
--- ===========================================================================
-
 -- Camp rest restores a player to the maximum health for their class.
 -- Rest also moves the player to Camp and cannot revive a dead player.
 rest :: Game -> Game
@@ -465,7 +415,6 @@ rest game
             , gamePlayer =
                 player { playerHealth = playerMaxHealth player }
             }
-
 
 -- Add a relic to the player's collection (no duplicates allowed).
 -- Keep the game collection and player inventory synchronized.
@@ -488,7 +437,6 @@ addRelic game relic =
                     Inventory { relics = collected }
                 }
         }
-
 
 -- Construct the initial game state from a chosen character.
 -- Preserve any relics already in the supplied player's inventory.
@@ -515,19 +463,14 @@ initialGame player =
         }
 
 
--- ===========================================================================
 -- INPUT HELPERS
--- ===========================================================================
-
 trim :: String -> String
 trim = dropWhileEndSpace . dropWhile isSpace
   where
     dropWhileEndSpace = reverse . dropWhile isSpace . reverse
 
-
 normalize :: String -> String
 normalize = map toLower . trim
-
 
 prompt :: String -> IO String
 prompt message = do
@@ -535,11 +478,7 @@ prompt message = do
     hFlush stdout
     getLine
 
-
--- ===========================================================================
 -- CLASS SELECTION
--- ===========================================================================
-
 parseClass :: String -> Maybe CharacterClass
 parseClass input =
     case normalize input of
@@ -550,7 +489,6 @@ parseClass input =
         "3"       -> Just Assault
         "assault" -> Just Assault
         _         -> Nothing
-
 
 -- Parse a player's combat input into a CombatAction.
 parseCombatAction :: String -> Maybe CombatAction
@@ -564,7 +502,6 @@ parseCombatAction input =
         "flee"   -> Just Flee
         _        -> Nothing
 
-
 displayClassOption :: String -> CharacterClass -> IO ()
 displayClassOption number chosenClass = do
     let stats = classStats chosenClass
@@ -575,7 +512,6 @@ displayClassOption number chosenClass = do
         ++ " | STR: " ++ show (baseStrength stats)
 
     putStrLn $ "   " ++ classDescription chosenClass
-
 
 chooseClass :: IO CharacterClass
 chooseClass = do
@@ -595,10 +531,7 @@ chooseClass = do
             chooseClass
 
 
--- ===========================================================================
 -- COMBAT
--- ===========================================================================
-
 -- Run a complete combat encounter.
 --
 -- Each valid combat action consumes one turn:
@@ -1003,10 +936,7 @@ challengeBoss game
         combat (game { gameLocation = Gate }) hollowKingEnemy
 
 
--- ===========================================================================
 -- EXPLORATION AND LOCATION EVENTS
--- ===========================================================================
-
 -- Travel to a location and generate a random event.
 -- The location is updated before the event occurs, including combat.
 exploreLocation :: Game -> Location -> IO Game
@@ -1085,10 +1015,7 @@ searchLocation game
                 exploreLocation game loc
 
 
--- ===========================================================================
 -- CHARACTER-CREATION ENTRY POINT
--- ===========================================================================
-
 createPlayer :: IO Player
 createPlayer = do
     chosenClass <- chooseClass
@@ -1106,10 +1033,7 @@ createPlayer = do
             createPlayer
 
 
--- ===========================================================================
 -- LOCATION MENU
--- ===========================================================================
-
 -- The main location menu. Shows the available actions and dispatches
 -- to the appropriate handler.
 locationMenu :: Game -> IO Game
@@ -1174,10 +1098,7 @@ locationMenu game
                 locationMenu game
 
 
--- ===========================================================================
 -- MAIN ADVENTURE LOOP
--- ===========================================================================
-
 -- The main game loop. Continues until the game is over.
 gameLoop :: Game -> IO ()
 gameLoop game
